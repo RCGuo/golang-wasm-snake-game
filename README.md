@@ -4,6 +4,8 @@ A snake game written in Golang and run in the browser by cross-compiling it to W
 
 I rewrite a snake game written in Javascript to Go WASM based on [*snake-game*](https://github.com/RodionChachura/snake-game.git) developed by RodionChachura to get more familiar with Go WASM.
 
+Demo: https://rcguo.github.io/golang-wasm-snake-game/
+
 ## Usage
 
 `make build_wasm` Use Golang to build wasm binary file.
