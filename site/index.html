@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Snake Game</title>
-    <link rel="stylesheet"  href="/styles.css">
-    <script src="/wasm_exec.js"></script>
+    <title>GO WASM Snake Game</title>
+    <link rel="stylesheet"  href="styles.css">
+    <script src="wasm_exec.js"></script>
     <script>
       if (!WebAssembly.instantiateStreaming) { // polyfill
         WebAssembly.instantiateStreaming = async (resp, importObject) => {
@@ -16,7 +16,7 @@
 
       const go = new Go();
       let mod, inst;
-      WebAssembly.instantiateStreaming(fetch("/snake.wasm"), go.importObject).then((result) => {
+      WebAssembly.instantiateStreaming(fetch("snake.wasm"), go.importObject).then((result) => {
         mod = result.module;
         inst = result.instance;
       }).then(_ => {
