@@ -29,3 +29,10 @@ var DEFAULT_GAME_CONFIG = GameManager{
 		Score:              0,
 	},
 }
+var SPEED_OPTIONS = map[string]float64{
+	"0.5x": 0.5,
+	"1x": 1,
+	"1.5x": 1.5,
+	"2x": 2,
+	"2.5x": 2.5,
+}

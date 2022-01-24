@@ -19,6 +19,10 @@
       WebAssembly.instantiateStreaming(fetch("snake.wasm"), go.importObject).then((result) => {
         mod = result.module;
         inst = result.instance;
+        const speedOpts = ['0.5x', '1x', '1.5x', '2x', '2.5x']
+        speedOpts.forEach(element => {
+          document.getElementById(element).disabled = false;
+        });
       }).then(_ => {
           console.clear();
           go.run(inst);  
@@ -37,5 +41,16 @@
       <p>Best: <span id="best-score"></span></p>
     </header>
     <div id="container"></div>
+    <div id="speed-option">
+      <p id="speed-label">Speed:&nbsp;</p>
+      <button id="0.5x" value="0.5x" disabled>0.5x</button>
+      <button id="1x"   value="1x" disabled>1x</button>
+      <button id="1.5x" value="1.5x" disabled>1.5x</button>
+      <button id="2x"   value="2x" disabled>2x</button>
+      <button id="2.5x" value="2.5x" disabled>2.5x</button>
+    </div>
+    <div>
+      <p id="pause">Press SPACE to resume game</p>
+    </div>
   </body>
 </html>

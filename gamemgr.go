@@ -11,11 +11,13 @@ import (
 
 var doc js.Value
 var window js.Value
+var gameConfig GameManager
 
 func init() {
 	rand.Seed(time.Now().UnixMilli())
 	window = js.Global()
 	doc = window.Get("document")
+	gameConfig = DEFAULT_GAME_CONFIG
 }
 
 type ContainerSize struct {
@@ -88,7 +90,7 @@ func getBestScore() int {
 }
 
 func getGameInitialMgr(mgr *GameManager) *GameManager {
-	mgr.Game = DEFAULT_GAME_CONFIG.Game
+	mgr.Game = gameConfig.Game
 	head := Vector{
 		x: math.Round(mgr.Game.Width/2) - 0.5,
 		y: math.Round(mgr.Game.Height/2) - 0.5,
@@ -362,12 +364,26 @@ func renderScores(score, bestScore int) {
 	doc.Call("getElementById", "best-score").Set("innerText", bestScore)
 }
 
+func renderPause(context js.Value, stopTime int64, width, height float64) {
+	if stopTime != 0 {
+		context.Set("font", "10vmin Arial");
+		context.Set("fillStyle", "#e74c3c");
+		context.Set("textAlign", "center");
+		context.Set("textBaseline", "middle");
+		context.Call("strokeText", "Pause", width / 2, height / 2);
+		doc.Call("getElementById", "pause").Get("style").Set("color", "red")
+	} else {
+		doc.Call("getElementById", "pause").Get("style").Set("color", "#2c3e50")
+	}
+}
+
 func render(mgr *GameManager) {
 	viewWidth, viewHeight :=
 		mgr.Projector.ProjectDistance(mgr.Game.Width),
 		mgr.Projector.ProjectDistance(mgr.Game.Height)
 	context := getContext(viewWidth, viewHeight)
 	cellSide := viewWidth / mgr.Game.Width
+	renderPause(context, mgr.Game.StopTime, viewWidth, viewHeight)
 	renderCells(context, cellSide, mgr.Game.Width, mgr.Game.Height)
 	renderFood(context, cellSide, mgr.Projector.ProjectPosition(mgr.Game.Food))
 	projectedSnake := make([]Vector, len(mgr.Game.Snake))
@@ -425,6 +441,12 @@ func StartGame() {
 		return nil
 	}))
 
+	window.Get("addEventListener").Invoke("blur", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		now := time.Now().UnixMilli()
+		mgr.Game.StopTime = now
+		return nil
+	}))
+
 	window.Get("addEventListener").Invoke("keydown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		keyNum := args[0].JSValue().Get("keyCode").Int()
 		if keyName, ok := MOVEMENT_KEYS[keyNum]; ok {
@@ -443,6 +465,18 @@ func StartGame() {
 		}
 		return nil
 	}))
+
+	for s := range SPEED_OPTIONS {
+		doc.Call("getElementById", s).Call("addEventListener", "click", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			this.Call("blur")
+			if speed, ok := SPEED_OPTIONS[this.Get("value").String()]; ok {
+        newSpeed := DEFAULT_GAME_CONFIG.Game.Speed * float64(speed)
+        mgr.Game.Speed = newSpeed
+        gameConfig.Game.Speed = newSpeed
+			}
+			return nil
+		}))
+	}
 
 	window.Call("setInterval", tick, UPDATE_EVERY)
 }

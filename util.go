@@ -13,3 +13,7 @@ func GetRange(length float64) []int {
 func AreEqual(one, another float64) bool {
 	return math.Abs(one-another) < 0.0000001
 }
+
+func ConsoleLog(args ...interface{}) {
+	window.Get("console").Call("log", args...)
+}
