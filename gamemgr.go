@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
@@ -366,15 +367,23 @@ func renderScores(score, bestScore int) {
 
 func renderPause(context js.Value, stopTime int64, width, height float64) {
 	if stopTime != 0 {
-		context.Set("font", "10vmin Arial");
-		context.Set("fillStyle", "#e74c3c");
-		context.Set("textAlign", "center");
-		context.Set("textBaseline", "middle");
-		context.Call("strokeText", "Pause", width / 2, height / 2);
-		doc.Call("getElementById", "pause").Get("style").Set("color", "red")
+    context.Set("font", "10vmin Arial")
+    context.Set("fillStyle", "#e74c3c")
+    context.Set("textAlign", "center")
+    context.Set("textBaseline", "middle")
+    context.Call("strokeText", "Pause", width / 2, height / 2)
+    doc.Call("getElementById", "pause").Set("innerText", "Press SPACE to resume game")
+    doc.Call("getElementById", "pause").Get("style").Set("color", "red")
+    doc.Call("getElementById", "pause").Get("style").Set("font-size", "2vmin")
 	} else {
-		doc.Call("getElementById", "pause").Get("style").Set("color", "#2c3e50")
+    doc.Call("getElementById", "pause").Set("innerText", "Press SPACE to pause game")
+    doc.Call("getElementById", "pause").Get("style").Set("color", "white")
+    doc.Call("getElementById", "pause").Get("style").Set("font-size", "2vmin")
 	}
+}
+
+func renderSpeed(speedText float64) {
+  doc.Call("getElementById", "speed-text").Set("innerText", fmt.Sprintf("%.1fx", speedText/0.006))
 }
 
 func render(mgr *GameManager) {
@@ -392,6 +401,7 @@ func render(mgr *GameManager) {
 	}
 	renderSnake(context, cellSide, projectedSnake)
 	renderScores(mgr.Game.Score, mgr.Game.BestScore)
+  renderSpeed(mgr.Game.Speed)
 }
 
 func getInitialMgr() *GameManager {
@@ -448,7 +458,7 @@ func StartGame() {
 	}))
 
 	window.Get("addEventListener").Invoke("keydown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		keyNum := args[0].JSValue().Get("keyCode").Int()
+		keyNum := args[0].Get("keyCode").Int()
 		if keyName, ok := MOVEMENT_KEYS[keyNum]; ok {
 			mgr.Game.Movement = keyName
 		} else {
